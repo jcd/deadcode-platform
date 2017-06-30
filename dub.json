@@ -1,0 +1,24 @@
+{
+	"name": "deadcode-platform",
+	"description": "Platform library of deadcode editor",
+	"authors": ["Jonas Drewsen"],
+	"homepage": "http://deadcode.steamwinter.com",
+	"license": "Boost v1",
+    "targetType": "library",
+    "sourcePaths": [ "." ],
+    "importPaths": [ ".", "../../ded/external/d-libraries" ],
+	"dependencies": {
+		"deadcode-core" : ">=0.0.0",
+		"derelict-sdl2": "2.0.0"
+	},
+	"versions-windows": ["Unicode" ],
+	"configurations" : [
+		{
+			"name" : "library"
+		},
+		{
+			"name" : "unittest",
+			"versions" : [ "TestingByTool" ]
+		}
+	]	
+}
