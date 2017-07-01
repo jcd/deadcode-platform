@@ -1,4 +1,4 @@
-module platform.display;
+module deadcode.platform.display;
 
 import deadcode.math.rect;
 

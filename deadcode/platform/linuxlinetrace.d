@@ -1,4 +1,4 @@
-module platform.linuxlinetrace;
+module deadcode.platform.linuxlinetrace;
 
 // Tracewrapper by Adam D. Ruppe
 version (linux):
