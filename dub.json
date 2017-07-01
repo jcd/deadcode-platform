@@ -11,6 +11,9 @@
 		"deadcode-core" : ">=0.0.0",
 		"derelict-sdl2": "2.0.0"
 	},
+	"dependencies-posix": {
+	    "x11": "~>1.0.8"
+	},	
 	"versions-windows": ["Unicode" ],
 	"configurations" : [
 		{
