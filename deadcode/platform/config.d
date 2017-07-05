@@ -109,7 +109,7 @@ class Paths
 	{
 		auto p = new Paths();
 		version (linux)
-			AssertContains(p.userData("foo"), buildPath(".local/share/Deadcode", "foo"));			
+			AssertContains(p.userData("foo"), buildPath(".local/share/DeadCode", "foo"));			
 		version (Windows)
 			AssertContains(p.userData("foo"), buildPath("Roaming/DeadCode", "foo"));			
 	}
