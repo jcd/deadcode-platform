@@ -3,6 +3,7 @@ module deadcode.platform.system;
 import core.sys.windows.windows;
 import std.string;
 
+version (unittest) import deadcode.test;
 
 bool shellCommandExists(string cmd)
 {
@@ -10,14 +11,17 @@ bool shellCommandExists(string cmd)
     import std.regex;
 
     auto res = pipeShell(cmd, Redirect.stdin | Redirect.stderrToStdout | Redirect.stdout);
+    
     version (Windows)
     {
         auto re = regex(r"is not recognized as an internal or external command");
     }
-	version (linux)
-{
-	auto re = regex(r"No command '");
-}
+	
+    version (linux)
+    {
+	   auto re = regex(r"No command '");
+    }
+    
     foreach (line; res.stdout.byLine)
     {
         if (!line.matchFirst(re).empty)
@@ -25,6 +29,11 @@ bool shellCommandExists(string cmd)
     }
     wait(res.pid);
     return true;
+}
+
+unittest
+{
+    Assert(false, shellCommandExists("does-not-exist"));
 }
 
 version (Windows)
@@ -145,6 +154,12 @@ version (linux)
             return (rr > 0 ? buf[0..rr].idup : "./".idup);
         }
         return null;
+    }
+
+    unittest
+    {
+        auto p = getRunningExecutablePath();
+        Assert(p.length != 0, "getRunningExecutablePath() returns non empty path");
     }
 
     mixin template platformMain(alias customMain)

@@ -67,6 +67,21 @@ class WrappedTraceHandler : Throwable.TraceInfo {
 		return ret;
 	}
 
+	unittest
+	{
+		import deadcode.test;
+		auto h = *(cast(WrappedTraceHandler*)Runtime.traceHandler);
+		Assert("fda", h.toString());
+
+		string res;
+		foreach (msg; h)
+		{
+			res ~= msg.idup;
+		}
+
+		Assert("bar", res);
+	}
+
 	override string toString() const {
 		string s = ti.toString();
 		return s ~ "\ncool\n";
