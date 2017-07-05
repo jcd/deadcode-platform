@@ -9,7 +9,7 @@ version (unittest) import deadcode.test;
 
 enum appName = "DeadCode";
 
-// DEPRECTATED APU. Use Paths instead.
+// DEPRECATED APU. Use Paths instead.
 deadcode.core.uri.URI resourceURI(string path, PathBase base = PathBase.userDataDir)
 {
     return new deadcode.core.uri.URI(paths.based(base, path));
@@ -59,9 +59,21 @@ class Paths
 		return based(PathBase.currentDir, relativePath);
 	}
 
+	unittest
+	{
+		auto p = new Paths();
+		AssertContains(p.current("foo"), buildPath("deadcode-platform", "foo"));			
+	}
+
 	string executable(string relativePath = null) const 
 	{
 		return based(PathBase.executableDir, relativePath);
+	}
+
+	unittest
+	{
+		auto p = new Paths();
+		AssertContains(p.executable("foo"), buildPath("deadcode-platform", "foo"));			
 	}
 
 	string resource(string relativePath = null) const 
@@ -69,9 +81,23 @@ class Paths
 		return based(PathBase.resourceDir, relativePath);
 	}
 
+	unittest
+	{
+		auto p = new Paths();
+		p.setResourcesRoot("RESOURCES");		
+		Assert("RESOURCES/foo", p.resource("foo"));			
+	}
+
 	string binary(string relativePath = null) const 
 	{
 		return based(PathBase.binariesDir, relativePath);
+	}
+
+	unittest
+	{
+		auto p = new Paths();
+		p.setBinariesRoot("BINARIES");
+		Assert("BINARIES/foo", p.binary("foo"));			
 	}
 
 	string userData(string relativePath = null) const 
@@ -79,14 +105,38 @@ class Paths
 		return based(PathBase.userDataDir, relativePath);
 	}
 
+	unittest
+	{
+		auto p = new Paths();
+		version (linux)
+			AssertContains(p.userData("foo"), buildPath(".local/share", "foo"));			
+		version (Windows)
+			AssertContains(p.userData("foo"), buildPath("Roaming/DeadCode", "foo"));			
+	}
+
 	string session(string relativePath = null) const 
 	{
 		return based(PathBase.sessionDir, relativePath);
 	}
 
+	unittest
+	{
+		auto p = new Paths();
+		p.session(); // ignore
+	}
+
 	string home(string relativePath = null) const 
 	{
 		return based(PathBase.homeDir, relativePath);
+	}
+
+	unittest
+	{
+		auto p = new Paths();
+		version (linux)
+			AssertContains(p.home("foo"), buildPath(expandTilde("~"), "foo"));			
+		version (Windows)
+			AssertContains(p.home("foo"), "foo");			
 	}
 
 	string based(PathBase base, string relativePath = null) const
@@ -162,15 +212,6 @@ class Paths
 		auto u = new deadcode.core.uri.URI(buildNormalizedPath(basePath, relativePath));
 		u.normalize();
 		return u.uriString;
-	}
-
-	unittest
-	{
-		auto p = new Paths();
-		p.setResourcesRoot("RESOURCES");		
-		p.setBinariesRoot("BINARIES");
-		Assert("BINARIES/foo", p.binary("foo"));			
-		Assert("RESOURCES/foo", p.resource("foo"));			
 	}
 
 private:
