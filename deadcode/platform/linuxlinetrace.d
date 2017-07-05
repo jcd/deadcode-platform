@@ -78,13 +78,15 @@ class WrappedTraceHandler : Throwable.TraceInfo {
 
 		enum testTrace = "./deadcode-platform-test-unittest(_D4core7runtime18runModuleUnitTestsUZ19unittestSegvHandlerUNbiPS4core3sys5posix6signal9siginfo_tPvZv+0x38)[0x9079d0]";
 		enum testV = 42;
+		enum testR = 100;
 
 		struct MockTraceInfo
 		{
 			int opApply(scope int delegate(ref size_t, ref const(char[])) dg) const 
 			{
 				auto d = testTrace.dup;
-				auto r = dg(testV, d);
+				size_t v = testV;
+				auto r = dg(v, d);
 				return r;
 			}
 		}
@@ -93,13 +95,13 @@ class WrappedTraceHandler : Throwable.TraceInfo {
 		{
 			Assert(testV, v);
 			AssertContains(msg.idup, "deadcode-platform-test-unittest");			
-			return v;
+			return testR;
 		}
 	
 		MockTraceInfo mock;
 		int res = h.opApplyInternal(&cb, mock);
 
-		Assert(testV, res);
+		Assert(testR, res);
 	}
 
 	override string toString() const {
