@@ -16,14 +16,18 @@ class WrappedTraceHandler : Throwable.TraceInfo {
 			{ return dg(buf); });
 	}
 
-	int opApply(scope int delegate(ref size_t, ref const(char[])) dg) const {
+	int opApply(scope int delegate(ref size_t, ref const(char[])) dg) const 
+	{
 		// disable the custom tracehandler while we're in here
 		// to avoid any recursive calls
 		auto backToIt = Runtime.traceHandler;
 		Runtime.traceHandler = null;
-		scope(exit)
-			Runtime.traceHandler = backToIt;
+		scope(exit) Runtime.traceHandler = backToIt;
+		return opApplyInternal(dg, ti);
+	}
 
+	private int opApplyInternal(T)(scope int delegate(ref size_t, ref const(char[])) dg, T ti)
+	{
 		int ret = 0;
 		foreach(size_t i, const(char[]) tmpbuf; ti) {
 			const(char)[] b = tmpbuf;
@@ -69,17 +73,32 @@ class WrappedTraceHandler : Throwable.TraceInfo {
 
 	unittest
 	{
-		//import deadcode.test;
-		//auto h = *(cast(WrappedTraceHandler*)Runtime.traceHandler);
-		//Assert("fda", h.toString());
+		import deadcode.test;
+		auto h = new WrappedTraceHandler(null);
 
-		//string res;
-		//foreach (msg; h)
-		//{
-		//	res ~= msg.idup;
-		//}
+		enum testTrace = "./deadcode-platform-test-unittest(_D4core7runtime18runModuleUnitTestsUZ19unittestSegvHandlerUNbiPS4core3sys5posix6signal9siginfo_tPvZv+0x38)[0x9079d0]";
+		enum testV = 42;
 
-		//Assert("bar", res);
+		struct MockTraceInfo
+		{
+			int opApply(scope int delegate(ref size_t, ref const(char[])) dg) const 
+			{
+				auto r = dg(testV, testTrace);
+				return r;
+			}
+		}
+
+
+		int cb(ref size_t v, ref const(char[]) msg)
+		{
+			Assert(testV, v);
+			AssertContains(msg.idup, "deadcode-platform-test-unittest");			
+		}
+	
+		MockTraceInfo mock;
+		int res = h.opApplyInternal(cb, mock);
+
+		Assert(testV, res);
 	}
 
 	override string toString() const {
