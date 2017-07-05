@@ -22,7 +22,7 @@ bool shellCommandExists(string cmd)
 	   auto re = regex(r": command not found'");
     }
     
-    foreach (line; res.stderr.byLine)
+    foreach (line; res.stdout.byLine)
     {
         if (!line.matchFirst(re).empty)
             return false;
