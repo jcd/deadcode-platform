@@ -19,10 +19,10 @@ bool shellCommandExists(string cmd)
 	
     version (linux)
     {
-	   auto re = regex(r"No command '");
+	   auto re = regex(r": command not found'");
     }
     
-    foreach (line; res.stdout.byLine)
+    foreach (line; res.stderr.byLine)
     {
         if (!line.matchFirst(re).empty)
             return false;
