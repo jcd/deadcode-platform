@@ -5,12 +5,25 @@ import deadcode.core.path;
 static import deadcode.core.uri;
 import std.format : format;
 
+version (unittest) import deadcode.test;
+
 enum appName = "DeadCode";
 
 // DEPRECTATED APU. Use Paths instead.
 deadcode.core.uri.URI resourceURI(string path, PathBase base = PathBase.userDataDir)
 {
     return new deadcode.core.uri.URI(paths.based(base, path));
+}
+
+unittest
+{
+	static import std.file;
+	auto r = resourceURI("foo", PathBase.currentDir);
+	auto p = absolutePath(std.file.getcwd());
+	auto u = new deadcode.core.uri.URI(buildNormalizedPath(p, "foo"));
+	u.normalize();
+
+	Assert(u.uriString, r.uriString);
 }
 
 /** The location that is use as base for relative paths/URIs.
@@ -151,6 +164,15 @@ class Paths
 		return u.uriString;
 	}
 
+	unittest
+	{
+		auto p = new Paths();
+		p.setResourcesRoot("RESOURCES");		
+		p.setBinariesRoot("BINARIES");
+		Assert("BINARIES/foo", p.binary("foo"));			
+		Assert("RESOURCES/foo", p.resource("foo"));			
+	}
+
 private:
 	string _resourcesRoot;
 	string _binariesRoot;
@@ -178,6 +200,11 @@ private CtxVar!Paths _paths;
     }
 }
 
+unittest
+{
+	Assert(paths.resource(), resourcePath());
+	Assert(paths.binary(), binaryPath());
+}
 
 version (Windows)
 {
