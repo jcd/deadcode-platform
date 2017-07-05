@@ -26,7 +26,7 @@ class WrappedTraceHandler : Throwable.TraceInfo {
 		return opApplyInternal(dg, ti);
 	}
 
-	private int opApplyInternal(T)(scope int delegate(ref size_t, ref const(char[])) dg, T ti)
+	private int opApplyInternal(T)(scope int delegate(ref size_t, ref const(char[])) dg, T ti) const
 	{
 		int ret = 0;
 		foreach(size_t i, const(char[]) tmpbuf; ti) {
@@ -83,20 +83,21 @@ class WrappedTraceHandler : Throwable.TraceInfo {
 		{
 			int opApply(scope int delegate(ref size_t, ref const(char[])) dg) const 
 			{
-				auto r = dg(testV, testTrace);
+				auto d = testTrace.dup;
+				auto r = dg(testV, d);
 				return r;
 			}
 		}
-
 
 		int cb(ref size_t v, ref const(char[]) msg)
 		{
 			Assert(testV, v);
 			AssertContains(msg.idup, "deadcode-platform-test-unittest");			
+			return v;
 		}
 	
 		MockTraceInfo mock;
-		int res = h.opApplyInternal(cb, mock);
+		int res = h.opApplyInternal(&cb, mock);
 
 		Assert(testV, res);
 	}
