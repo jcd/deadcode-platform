@@ -40,7 +40,13 @@ class WrappedTraceHandler : Throwable.TraceInfo {
 
 	private int opApplyInternal(T)(scope int delegate(ref size_t, ref const(char[])) dg, T ti) const
 	{
-		if (ti is null) return 0;
+		if (ti is null)
+		{ 
+			size_t x = 0;
+			char[] y = null;
+			return dg(x, y);
+		}
+		
 		int ret = 0;
 		foreach(size_t i, const(char[]) tmpbuf; ti) {
 			const(char)[] b = tmpbuf;
