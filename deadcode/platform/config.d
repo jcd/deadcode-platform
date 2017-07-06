@@ -108,10 +108,10 @@ class Paths
 	unittest
 	{
 		auto p = new Paths();
-		version (linux)
-			AssertContains(p.userData("foo"), buildPath(".local/share/DeadCode", "foo"));			
 		version (Windows)
 			AssertContains(p.userData("foo"), buildPath("Roaming/DeadCode", "foo"));			
+		version (Posix)
+			AssertContains(p.userData("foo"), buildPath(".local/share/DeadCode", "foo"));			
 	}
 
 	string session(string relativePath = null) const 
@@ -133,10 +133,10 @@ class Paths
 	unittest
 	{
 		auto p = new Paths();
-		version (linux)
-			AssertContains(p.home("foo"), buildPath(expandTilde("~"), "foo"));			
 		version (Windows)
 			AssertContains(p.home("foo"), "foo");			
+		version (Posix)
+			AssertContains(p.home("foo"), buildPath(expandTilde("~"), "foo"));			
 	}
 
 	string based(PathBase base, string relativePath = null) const
@@ -201,7 +201,7 @@ class Paths
 					else
 						throw new Exception("Cannot get HOME dir");
 				}
-				version (linux)
+				version (Posix)
 				{
 					string home = expandTilde("~");
 					basePath = absolutePath(home);
@@ -218,9 +218,9 @@ class Paths
 	{
 		auto p = new Paths();
 		version (Windows) auto r = p.userData("C:\\foo");
-		version (linux) auto r = p.userData("/foo");
+		version (Posix) auto r = p.userData("/foo");
 		version (Windows) auto res = new deadcode.core.uri.URI("C:\\foo");
-		version (linux) auto res = new deadcode.core.uri.URI("/foo");
+		version (Posix) auto res = new deadcode.core.uri.URI("/foo");
 		res.normalize();
 		Assert(res.uriString, r);
 	}

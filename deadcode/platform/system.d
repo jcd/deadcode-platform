@@ -11,26 +11,26 @@ bool shellCommandExists(string cmd)
     import std.regex;
 
     auto res = pipeShell(cmd, Redirect.stdin | Redirect.stderrToStdout | Redirect.stdout);
-    
+    bool result = true;
+
     version (Windows)
     {
         auto re = regex("is not recognized as an internal or external command");
+        foreach (line; res.stdout.byLine)
+        {
+            import std.stdio;
+            writeln(line);
+            if (!line.matchFirst(re).empty)
+            {
+                result = false;
+                break;
+            }
+        }
     }
-	
-    version (linux)
-    {
-	   auto re = regex(": command not found'");
-    }
-    
-    foreach (line; res.stdout.byLine)
-    {
-        import std.stdio;
-        writeln(line);
-        if (!line.matchFirst(re).empty)
-            return false;
-    }
-    wait(res.pid);
-    return true;
+	    
+    version (Posix) result = wait(res.pid) != 127;  
+
+    return result;
 }
 
 unittest
@@ -148,14 +148,16 @@ version (linux)
         char[buflen] buf;
         /* the easiest case: we are in linux */
 
+        string result = null;
+
         ssize_t res = readlink ("/proc/self/exe".toStringz, buf.ptr, buflen);
         if (res != -1)
         {
             size_t rr = res;
             while (rr > 0 && buf[rr-1] != '/') --rr;
-            return (rr > 0 ? buf[0..rr].idup : "./".idup);
+            result = (rr > 0 ? buf[0..rr].idup : "./".idup);
         }
-        return null;
+        return result;
     }
 
     unittest
