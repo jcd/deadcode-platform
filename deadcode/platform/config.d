@@ -214,6 +214,17 @@ class Paths
 		return u.uriString;
 	}
 
+	unittest
+	{
+		auto p = new Paths();
+		version (Windows) auto r = p.userData("C:\\foo");
+		version (linux) auto r = p.userData("/foo");
+		version (Windows) auto res = new deadcode.core.uri.URI("C:\\foo");
+		version (linux) auto res = new deadcode.core.uri.URI("/foo");
+		res.normalize();
+		Assert(res.uriString, r);
+	}
+
 private:
 	string _resourcesRoot;
 	string _binariesRoot;
@@ -389,13 +400,33 @@ version (linux)
 		return value;
 	}
 
+	unittest 
+	{
+		enum value = "Value";
+		enum key = "Key";
+		Assert(value, getOrSetConfigField(key, value));
+		Assert(value, getOrSetConfigField(key, ""));
+	}
+
     string defaultExecExtension(string path)
     {
 		return path;
     }
 
+    unittest
+    {
+    	// coverage
+    	defaultExecExtension("");
+    }
+
     string statFilePathCase(string inPath)
     {
         return inPath;
+    }
+
+    unittest
+    {
+    	// coverage
+    	statFilePathCase("");
     }
 }
