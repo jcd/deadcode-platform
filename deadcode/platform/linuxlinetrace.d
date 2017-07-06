@@ -21,7 +21,7 @@ class WrappedTraceHandler : Throwable.TraceInfo {
 	unittest
 	{
 		auto h = new WrappedTraceHandler(null);
-		static int cb(ref size_t v, ref const(char[]) msg)
+		int cb(ref const(char[]) msg)
 		{
 			return 0;
 		}
