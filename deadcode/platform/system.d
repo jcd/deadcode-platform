@@ -14,16 +14,18 @@ bool shellCommandExists(string cmd)
     
     version (Windows)
     {
-        auto re = regex(r"is not recognized as an internal or external command");
+        auto re = regex("is not recognized as an internal or external command");
     }
 	
     version (linux)
     {
-	   auto re = regex(r": command not found'");
+	   auto re = regex(": command not found'");
     }
     
     foreach (line; res.stdout.byLine)
     {
+        import std.stdio;
+        writeln(line);
         if (!line.matchFirst(re).empty)
             return false;
     }

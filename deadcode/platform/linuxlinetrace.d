@@ -3,6 +3,8 @@ module deadcode.platform.linuxlinetrace;
 // Tracewrapper by Adam D. Ruppe
 version (linux):
 
+version (unittest) import deadcode.test;
+
 import core.runtime;
 
 class WrappedTraceHandler : Throwable.TraceInfo {
@@ -14,6 +16,16 @@ class WrappedTraceHandler : Throwable.TraceInfo {
 	int opApply(scope int delegate(ref const(char[])) dg) const {
 		return opApply( (ref size_t, ref const(char[]) buf)
 			{ return dg(buf); });
+	}
+
+	unittest
+	{
+		auto h = new WrappedTraceHandler(null);
+		static int cb(ref size_t v, ref const(char[]) msg)
+		{
+			return 0;
+		}
+		Assert(0, h.opApply(&cb));
 	}
 
 	int opApply(scope int delegate(ref size_t, ref const(char[])) dg) const 
@@ -28,6 +40,7 @@ class WrappedTraceHandler : Throwable.TraceInfo {
 
 	private int opApplyInternal(T)(scope int delegate(ref size_t, ref const(char[])) dg, T ti) const
 	{
+		if (ti is null) return 0;
 		int ret = 0;
 		foreach(size_t i, const(char[]) tmpbuf; ti) {
 			const(char)[] b = tmpbuf;
@@ -73,7 +86,6 @@ class WrappedTraceHandler : Throwable.TraceInfo {
 
 	unittest
 	{
-		import deadcode.test;
 		auto h = new WrappedTraceHandler(null);
 
 		enum testTrace = "./deadcode-platform-test-unittest(_D4core7runtime18runModuleUnitTestsUZ19unittestSegvHandlerUNbiPS4core3sys5posix6signal9siginfo_tPvZv+0x38)[0x9079d0]";
@@ -105,8 +117,13 @@ class WrappedTraceHandler : Throwable.TraceInfo {
 	}
 
 	override string toString() const {
-		string s = ti.toString();
-		return s ~ "\ncool\n";
+		return text(ti, "\n(WrappedTraceHandler)\n");
+	}
+
+	unittest
+	{
+		auto h = new WrappedTraceHandler(null);
+		Assert("null\n(WrappedTraceHandler)\n", h.toString());
 	}
 }
 
