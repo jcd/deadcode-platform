@@ -92,7 +92,7 @@ class WrappedTraceHandler : Throwable.TraceInfo {
 		enum testV = 42;
 		enum testR = 100;
 
-		struct MockTraceInfo
+		class MockTraceInfo
 		{
 			int opApply(scope int delegate(ref size_t, ref const(char[])) dg) const 
 			{
@@ -110,13 +110,14 @@ class WrappedTraceHandler : Throwable.TraceInfo {
 			return testR;
 		}
 	
-		MockTraceInfo mock;
+		auto mock = new MockTraceInfo();
 		int res = h.opApplyInternal(&cb, mock);
 
 		Assert(testR, res);
 	}
 
 	override string toString() const {
+		import std.conv;
 		return text(ti, "\n(WrappedTraceHandler)\n");
 	}
 
