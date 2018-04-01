@@ -320,7 +320,7 @@ version (Windows)
 									  0,
 									  REG_SZ,
 									  cast(ubyte*)execPathC,
-									  value.length + 1);
+									  cast(int)value.length + 1);
 
 			if(lRtnVal != ERROR_SUCCESS)
 			{
